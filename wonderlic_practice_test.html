@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wonderlic Practice Test (50 Questions)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1, .timer {
+      text-align: center;
+    }
+    .timer {
+      font-size: 24px;
+      margin: 20px;
+      color: #d32f2f;
+    }
+    .question {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .question h3 {
+      margin-top: 0;
+    }
+    .options label {
+      display: block;
+      margin: 5px 0;
+    }
+    button {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #results {
+      background: #e8f5e9;
+      padding: 20px;
+      border: 1px solid #c8e6c9;
+      margin-top: 20px;
+      display: none;
+    }
+    .explanation {
+      margin-top: 10px;
+      font-style: italic;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Wonderlic Practice Test</h1>
+<div class="timer" id="timer">Time Left: 12:00</div>
+
+<form id="quizForm"></form>
+<button onclick="submitQuiz()">Submit Test</button>
+
+<div id="results">
+  <h2>Your Score: <span id="score"></span>/50</h2>
+  <div id="feedback"></div>
+</div>
+
+<script>
+const questions = [];
+
+// Generate 50 questions
+for (let i = 1; i <= 50; i++) {
+  const val = i + i;
+  questions.push({
+    question: `What is ${i} + ${i}?`,
+    options: [
+      `A. ${val + 1}`,
+      `B. ${val - 1}`,
+      `C. ${val}`,
+      `D. ${val + 2}`
+    ],
+    answer: "C",
+    explanation: `${i} + ${i} = ${val}`
+  });
+}
+
+const form = document.getElementById("quizForm");
+
+questions.forEach((q, i) => {
+  const div = document.createElement("div");
+  div.className = "question";
+  div.innerHTML = `<h3>${i + 1}. ${q.question}</h3>`;
+  q.options.forEach((opt) => {
+    const letter = opt.charAt(0);
+    div.innerHTML += `
+      <label>
+        <input type="radio" name="q${i}" value="${letter}" />
+        ${opt}
+      </label>`;
+  });
+  form.appendChild(div);
+});
+
+function startTimer(duration, display) {
+  let timer = duration;
+  const interval = setInterval(() => {
+    const minutes = String(Math.floor(timer / 60)).padStart(2, "0");
+    const seconds = String(timer % 60).padStart(2, "0");
+    display.textContent = `Time Left: ${minutes}:${seconds}`;
+    if (--timer < 0) {
+      clearInterval(interval);
+      alert("Time's up! Submitting your test.");
+      submitQuiz();
+    }
+  }, 1000);
+}
+
+window.onload = () => {
+  const display = document.getElementById("timer");
+  startTimer(12 * 60, display); // 12 minutes
+};
+
+function submitQuiz() {
+  let score = 0;
+  const feedbackDiv = document.getElementById("feedback");
+  feedbackDiv.innerHTML = "";
+
+  questions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    const isCorrect = selected && selected.value === q.answer;
+    if (isCorrect) score++;
+    const explanation = document.createElement("div");
+    explanation.className = "explanation";
+    explanation.innerHTML = `
+      <strong>Q${i + 1}:</strong> ${q.question}<br>
+      <strong>Your answer:</strong> ${selected ? selected.value : "None"}<br>
+      <strong>Correct answer:</strong> ${q.answer}<br>
+      <em>${q.explanation}</em><hr>`;
+    feedbackDiv.appendChild(explanation);
+  });
+
+  document.getElementById("score").textContent = score;
+  document.getElementById("results").style.display = "block";
+}
+</script>
+
+</body>
+</html>
